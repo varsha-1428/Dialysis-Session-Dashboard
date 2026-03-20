@@ -1,0 +1,6 @@
+export const CLINICAL_THRESHOLDS = {
+  IDWG_PERCENT_LIMIT: 0.05, // 5% of dry weight
+  MAX_POST_SYSTOLIC_BP: 150, // mmHg
+  TARGET_DURATION_MINS: 240, // 4 hours
+  DURATION_DEVIATION_TOLERANCE: 30, // 30 minutes
+};
