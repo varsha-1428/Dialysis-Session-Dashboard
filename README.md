@@ -183,6 +183,10 @@ npm run seed
 
 https://drive.google.com/file/d/1anpDGA1lmRYMTAhzQi57k3Ar2kFguPoW/view?usp=drive_link
 
+### My notes for this project 
+
+https://www.notion.so/JANO-HEALTH-CARE-328b2d37d1ac80a8acc9ec98a7fffa8f?source=copy_link
+
 
 ## 🤖 AI Usage
 
