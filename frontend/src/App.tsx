@@ -1,14 +1,10 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import {
   AlertTriangle,
   UserPlus,
   Search,
   Filter,
-  Activity,
-  Clock,
-  CheckCircle2,
-  ChevronRight,
 } from "lucide-react";
 import { AddSessionForm } from "./components/AddSessionModal";
 import { RegisterPatientModal } from "./components/RegisterPatientModal";
@@ -49,11 +45,11 @@ function App() {
         minHeight: "100vh",
         width: "100%",
         backgroundColor: "#f4f7f6",
-        padding: "40px 20px",
+        padding: "40px 60px",
         fontFamily: "Segoe UI, Roboto, sans-serif",
       }}
     >
-      <div style={{ margin: "0 auto", padding: "0 20px" }}>
+      <div style={{ margin: "0 auto", padding: "0 60px" }}>
         {/* Header */}
         <div
           style={{
@@ -188,6 +184,41 @@ function App() {
                   </div>
                 </div>
 
+                {/* Key metrics */}
+                {item.session && (
+                  <div style={{ marginTop: "12px", display: "flex", gap: "16px", flexWrap: "wrap" }}>
+                    <div>
+                      <div style={{ fontSize: "12px", color: "#718096", fontWeight: 600 }}>WEIGHT</div>
+                      <div style={{ fontSize: "14px", fontWeight: 700, color: "#2d3748" }}>
+                        {item.session.postWeight != null ? `${item.session.postWeight}kg (post)` : `${item.session.preWeight}kg (pre)`}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: "12px", color: "#718096", fontWeight: 600 }}>BP</div>
+                      <div style={{ fontSize: "14px", fontWeight: 700, color: "#2d3748" }}>
+                        {item.session.vitals?.systolicBP != null && item.session.vitals?.diastolicBP != null
+                          ? `${item.session.vitals.systolicBP}/${item.session.vitals.diastolicBP} mmHg`
+                          : "Not recorded"}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: "12px", color: "#718096", fontWeight: 600 }}>DURATION</div>
+                      <div style={{ fontSize: "14px", fontWeight: 700, color: "#2d3748" }}>
+                        {item.session.startTime && item.session.endTime
+                          ? (() => {
+                              const start = new Date(item.session.startTime);
+                              const end = new Date(item.session.endTime);
+                              const mins = Math.round((end.getTime() - start.getTime()) / 60000);
+                              const hours = Math.floor(mins / 60);
+                              const remMins = mins % 60;
+                              return `${hours}h ${remMins}m`;
+                            })()
+                          : "In progress"}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {hasAlerts && (
                   <div style={{ marginTop: "12px" }}>
                     {item.session.anomalies.map((msg: string, i: number) => (
@@ -209,26 +240,34 @@ function App() {
                   </div>
                 )}
 
-                {item.status === "Not Started" &&
-                  selectedPatient !== item.patient._id && (
-                    <button
-                      onClick={() => setSelectedPatient(item.patient._id)}
-                      style={{
-                        marginTop: "15px",
-                        width: "100%",
-                        padding: "10px",
-                        backgroundColor: "#2d3748",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                        fontWeight: "600",
-                        fontSize: "14px",
-                      }}
-                    >
-                      Start Intake
-                    </button>
-                  )}
+                {selectedPatient !== item.patient._id && (
+                  <button
+                    onClick={() => setSelectedPatient(item.patient._id)}
+                    style={{
+                      marginTop: "15px",
+                      width: "100%",
+                      padding: "10px",
+                      backgroundColor:
+                        item.status === "Not Started"
+                          ? "#2d3748"
+                          : item.status === "In Progress"
+                            ? "#3182ce"
+                            : "#4a5568",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      fontWeight: "600",
+                      fontSize: "14px",
+                    }}
+                  >
+                    {item.status === "Not Started"
+                      ? "Start Intake"
+                      : item.status === "In Progress"
+                        ? "Complete Session"
+                        : "Edit Notes"}
+                  </button>
+                )}
 
                 {selectedPatient === item.patient._id && (
                   <div
@@ -240,11 +279,11 @@ function App() {
                   >
                     <AddSessionForm
                       patientId={item.patient._id}
+                      session={item.session}
+                      status={item.status}
                       onCancel={() => setSelectedPatient(null)}
-                      onSuccess={() => {
-                        setSelectedPatient(null);
-                        fetchSchedule();
-                      }}
+                      onRefresh={fetchSchedule}
+                      onDone={() => setSelectedPatient(null)}
                     />
                   </div>
                 )}

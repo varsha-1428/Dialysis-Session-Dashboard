@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Patient } from '../models/Patient';
 import { Session } from '../models/Session';
+import { AnomalyService } from '../services/anomalyService';
 
 export const getTodaySchedule = async (req: Request, res: Response) => {
   try {
@@ -20,15 +21,31 @@ export const getTodaySchedule = async (req: Request, res: Response) => {
     });
 
     // 4. Merge them so the frontend gets a list of Patients + their Today's Session (if any)
-    const schedule = patients.map(patient => {
+    const schedule = await Promise.all(
+      patients.map(async (patient) => {
       const session = sessionsToday.find(s => s.patientId.toString() === patient._id.toString());
+      let computedAnomalies: string[] = [];
+
+      if (session) {
+        const previousCompleted = await Session.findOne({
+          patientId: patient._id,
+          endTime: { $lt: startOfToday },
+          postWeight: { $exists: true, $ne: null },
+        }).sort({ endTime: -1 });
+
+        const previousPostWeight = previousCompleted?.postWeight;
+        computedAnomalies = AnomalyService.detect(session as any, patient.dryWeight, previousPostWeight);
+      }
       
       return {
         patient,
-        session: session || null, // null means "Not Started"
+        session: session
+          ? { ...session.toObject(), anomalies: computedAnomalies }
+          : null, // null means "Not Started"
         status: session ? (session.endTime ? 'Completed' : 'In Progress') : 'Not Started'
       };
-    });
+    })
+    );
 
     res.status(200).json(schedule);
   } catch (error) {

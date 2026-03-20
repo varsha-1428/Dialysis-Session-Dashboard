@@ -6,10 +6,11 @@ export interface ISession extends Document {
   endTime?: Date;
   preWeight: number;
   postWeight?: number;
-  vitals: {
-    systolicBP: number;
-    diastolicBP: number;
-    pulse: number;
+  // Vitals are recorded at completion time (end of dialysis session).
+  vitals?: {
+    systolicBP?: number;
+    diastolicBP?: number;
+    pulse?: number;
   };
   machineId: string;
   notes: string;
@@ -39,9 +40,9 @@ const sessionSchema = new Schema<ISession>(
       type: Number,
     },
     vitals: {
-      systolicBP: { type: Number, required: true },
-      diastolicBP: { type: Number, required: true },
-      pulse: { type: Number, required: true },
+      systolicBP: { type: Number },
+      diastolicBP: { type: Number },
+      pulse: { type: Number },
     },
     machineId: {
       type: String,

@@ -38,7 +38,7 @@ export class AnomalyService {
       const durationMins = (endTime.getTime() - startTime.getTime()) / (1000 * 60);
       const deviation = Math.abs(durationMins - CLINICAL_THRESHOLDS.TARGET_DURATION_MINS);
 
-      if (deviation > CLINICAL_THRESHOLDS.DURATION_DEVIATION_TOLERANCE) {
+      if (deviation >= CLINICAL_THRESHOLDS.DURATION_DEVIATION_TOLERANCE) {
         anomalies.push(`Abnormal Duration: ${Math.round(durationMins)} mins`);
       }
     }
