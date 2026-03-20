@@ -35,3 +35,20 @@ export const getTodaySchedule = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Error fetching today\'s schedule', error });
   }
 };
+
+export const registerPatient = async (req: Request, res: Response) => {
+  try {
+    const { name, mrn, dryWeight, dateOfBirth } = req.body;
+    
+    // Check if MRN already exists
+    const existing = await Patient.findOne({ mrn });
+    if (existing) return res.status(400).json({ message: "MRN already exists" });
+
+    const newPatient = new Patient({ name, mrn, dryWeight, dateOfBirth });
+    await newPatient.save();
+    
+    res.status(201).json(newPatient);
+  } catch (error) {
+    res.status(500).json({ message: "Error registering patient", error });
+  }
+};
