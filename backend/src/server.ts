@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './config/db'
+import patientRoutes from './routes/patientRoutes';
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.get('/api/health', (req: Request, res: Response) => {
   res.status(200).json({ status: 'OK', message: 'Dialysis Dashboard API is running' });
 });
+app.use('/api/patients', patientRoutes);
 
 const PORT = process.env.PORT || 5000;
 
